@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QDir>
+#include <QFileInfo>
+#include <QScrollBar>
 
 namespace Ui {
 class MainWindow;
@@ -27,12 +29,16 @@ private slots:
     void on_radioButton_path_clicked();
 
     void on_ConvertButton_clicked();
+    void processStarted();
+    void readyReadStandardOutput();
+    void TranscodingFinished();
 
 private:
     Ui::MainWindow *ui;
     QProcess *mTranscodingProcess;
     bool isfile;
     bool hasfile;
+    QString mOutputString;
 };
 
 #endif // MAINWINDOW_H
