@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "pathprocess.h"
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,15 +18,32 @@ MainWindow::MainWindow(QWidget *parent) :
     // transcoding
     mTranscodingProcess = new QProcess(this);
 
+
+
     connect(mTranscodingProcess, SIGNAL(started()), this, SLOT(processStarted()));
 
     connect(mTranscodingProcess,SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
     connect(mTranscodingProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
+
+    //线程log返回
+
+    mypathProcess = new PathProcess(this);
+    //this->moveToThread(mypathProcess);
+    connect(mypathProcess, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+void    MainWindow::Log(QString   sMessage)
+{
+    ui->textBrowser->setText(sMessage);
+
+    // put the slider at the bottom
+    ui->textBrowser->verticalScrollBar()
+            ->setSliderPosition(
+                ui->textBrowser->verticalScrollBar()->maximum());
 }
 
 void MainWindow::processStarted()
@@ -189,41 +209,20 @@ void MainWindow::on_ConvertButton_clicked()
         mTranscodingProcess->start(program, args);
 
     }
+    else
+    {
+        //pathProcess= new PathProcess(this);
+        //
+        //
+        //获取文本框的输入
+        QString inputpath =  ui->fileEdit->text();
+        if(inputpath.isEmpty()) {
+            qDebug() << "No input";
+            return;
+        }
+        mypathProcess->setpath(inputpath);
 
-
-//
-
-//    QStringList arguments;
-
-//    QString output = ui->toLineEdit->text();
-//    if(output.isEmpty()) {
-//        qDebug() << "No output";
-//        QMessageBox::information(this,
-//                     tr("ffmpeg"),tr("Output file not specified"));
-//        return;
-//    }
-
-//    QString fileName = ui->toLineEdit->text();
-//    qDebug() << "output file check " << fileName;
-//    qDebug() << "QFile::exists(fileName) = " << QFile::exists(fileName);
-//    if (QFile::exists(fileName)) {
-//         if (QMessageBox::question(this, tr("ffmpeg"),
-//                    tr("There already exists a file called %1 in "
-//                    "the current directory. Overwrite?").arg(fileName),
-//                    QMessageBox::Yes|QMessageBox::No, QMessageBox::No)
-//             == QMessageBox::No)
-//             return;
-//         QFile::remove(fileName);
-//         while(QFile::exists(fileName)) {
-//             qDebug() << "output file still there";
-//         }
-//     }
-
-//    arguments << "-i" << input << output;
-
-//    qDebug() << arguments;
-
-//    mTranscodingProcess->setProcessChannelMode(QProcess::MergedChannels);
-//    mTranscodingProcess->start(program, arguments);
+        mypathProcess->start();
+   }
 
 }

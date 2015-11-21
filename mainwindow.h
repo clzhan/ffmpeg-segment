@@ -8,6 +8,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QScrollBar>
+#include <process.h>
+#include "pathprocess.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,12 +35,17 @@ private slots:
     void readyReadStandardOutput();
     void TranscodingFinished();
 
+    void Log (QString   sMessage);
+
+
 private:
     Ui::MainWindow *ui;
     QProcess *mTranscodingProcess;
     bool isfile;
     bool hasfile;
     QString mOutputString;
+    PathProcess *mypathProcess;
+
 };
 
 #endif // MAINWINDOW_H
