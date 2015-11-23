@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QFileInfo>
+#include <QApplication>
 
 
 
@@ -24,12 +25,15 @@ protected:
 private slots:
 
     void readyReadStandardOutput();
+    void ConvertFinished();
 
 signals:
     void commandSuccessed(QString ip);
     void commandFailed(QString ip);
 
     void Log(QString   sMessage);
+    void ThreadProcessBar(int value);
+
 
 public slots:
 
@@ -38,6 +42,8 @@ private:
     QProcess * mConvertProcess;
     QString path;
     QString mOutputString;
+    int m_CurrentValue;
+    int m_CurrentFile;
 };
 
 

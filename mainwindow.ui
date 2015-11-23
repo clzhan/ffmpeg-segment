@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>454</width>
-    <height>439</height>
+    <height>454</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -56,7 +56,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>11</x>
@@ -81,7 +81,7 @@
        <property name="title">
         <string/>
        </property>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>11</x>
@@ -117,7 +117,7 @@
    <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>11</x>
       <y>360</y>
       <width>411</width>
       <height>25</height>
@@ -132,29 +132,19 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QProgressBar" name="ConvertBar">
+       <property name="value">
+        <number>24</number>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </widget>
-   <zorder>groupBox</zorder>
+   <zorder>layoutWidget</zorder>
    <zorder>textBrowser</zorder>
    <zorder>layoutWidget</zorder>
-   <zorder></zorder>
-   <zorder>radioButton_path</zorder>
-   <zorder>label</zorder>
-   <zorder>fileopenButton</zorder>
-   <zorder>ConvertButton</zorder>
-   <zorder>horizontalSpacer</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>ConvertBar</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

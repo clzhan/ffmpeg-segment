@@ -11,6 +11,7 @@
 #include <process.h>
 #include "pathprocess.h"
 
+
 namespace Ui {
 class MainWindow;
 }
@@ -33,9 +34,10 @@ private slots:
     void on_ConvertButton_clicked();
     void processStarted();
     void readyReadStandardOutput();
-    void TranscodingFinished();
+    void ConvertFinished();
 
     void Log (QString   sMessage);
+    void  ThreadProcessBar(int value);
 
 
 private:
@@ -45,6 +47,7 @@ private:
     bool hasfile;
     QString mOutputString;
     PathProcess *mypathProcess;
+    int m_CurrentValue;
 
 };
 

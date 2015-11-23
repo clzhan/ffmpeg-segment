@@ -9,7 +9,8 @@ PathProcess::PathProcess(QObject *parent):QThread(parent)
 {
    // connect(mConvertProcess, SIGNAL(started()), this, SLOT(processStarted()));
 
-
+    m_CurrentValue = 0;
+    m_CurrentFile = 1;
    // connect(mConvertProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
 
 }
@@ -27,14 +28,25 @@ void PathProcess::readyReadStandardOutput()
 {
     mOutputString.append(mConvertProcess->readAllStandardOutput());
     emit Log(mOutputString);
-}
 
+
+}
+void PathProcess::ConvertFinished()
+{
+    int value = 100/m_CurrentFile;
+    m_CurrentValue+=value ;
+    emit ThreadProcessBar(m_CurrentValue);
+}
 void PathProcess::run()
 {
    emit Log("jejee");
 
+    m_CurrentValue = 0;
+    emit ThreadProcessBar(m_CurrentValue);
+
     mConvertProcess = new QProcess(this);
     connect(mConvertProcess,SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
+    connect(mConvertProcess, SIGNAL(finished(int)), this, SLOT(ConvertFinished()));
 
     QDir dir(this->path);
     if (!dir.exists())
@@ -53,6 +65,7 @@ void PathProcess::run()
     {
         return;
     }
+    m_CurrentFile= file_count;
 
     emit Log("The path has ts file number:" + QString::number(file_count));
 
@@ -97,7 +110,8 @@ void PathProcess::run()
 
         mConvertProcess->setProcessChannelMode(QProcess::MergedChannels);
 
-        QString program = "D:/ffmpeg/qtffmpeg/ffmpeghls/ffmpegtosegment/github/ffmpeg-segment/bin/ffmpeg";
+        QString program = QApplication::applicationDirPath() + "/ffmpeg/ffmpeg";
+        //QString program = "D:/ffmpeg/qtffmpeg/ffmpeghls/ffmpegtosegment/github/ffmpeg-segment/bin/ffmpeg";
         mConvertProcess->start(program, args);
 
 
@@ -106,5 +120,7 @@ void PathProcess::run()
         }
 
     }
-     emit Log("convert finished");
+     emit Log("Convert Surcessfully\N");
+    m_CurrentValue=100 ;
+    emit ThreadProcessBar(m_CurrentValue);
 }

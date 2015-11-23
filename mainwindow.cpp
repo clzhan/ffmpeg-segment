@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent) :
     hasfile = false; // 代表该文件是ts 或者文件夹内有ts文件
 
 
+    ui->ConvertBar->setRange(0, 100);
+    m_CurrentValue = 0;
+    ui->ConvertBar->setValue(m_CurrentValue);
+
+
     // Create process
     // transcoding
     mTranscodingProcess = new QProcess(this);
@@ -23,13 +28,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(mTranscodingProcess, SIGNAL(started()), this, SLOT(processStarted()));
 
     connect(mTranscodingProcess,SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
-    connect(mTranscodingProcess, SIGNAL(finished(int)), this, SLOT(encodingFinished()));
+    connect(mTranscodingProcess, SIGNAL(finished(int)), this, SLOT(ConvertFinished()));
 
     //线程log返回
 
     mypathProcess = new PathProcess(this);
-    //this->moveToThread(mypathProcess);
     connect(mypathProcess, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+    connect(mypathProcess, SIGNAL(ThreadProcessBar(int)), this, SLOT(ThreadProcessBar(int)));
 }
 
 MainWindow::~MainWindow()
@@ -38,12 +43,17 @@ MainWindow::~MainWindow()
 }
 void    MainWindow::Log(QString   sMessage)
 {
-    ui->textBrowser->setText(sMessage);
+    mOutputString.append(sMessage);
+    ui->textBrowser->setText(mOutputString);
 
     // put the slider at the bottom
     ui->textBrowser->verticalScrollBar()
             ->setSliderPosition(
                 ui->textBrowser->verticalScrollBar()->maximum());
+}
+void    MainWindow::ThreadProcessBar(int value)
+{
+   ui->ConvertBar->setValue(value);
 }
 
 void MainWindow::processStarted()
@@ -59,25 +69,22 @@ void MainWindow::readyReadStandardOutput()
     ui->textBrowser->verticalScrollBar()
             ->setSliderPosition(
                 ui->textBrowser->verticalScrollBar()->maximum());
+    m_CurrentValue++;
+    ui->ConvertBar->setValue(m_CurrentValue);
 }
-void MainWindow::TranscodingFinished()
+void MainWindow::ConvertFinished()
 {
-    // Set the encoding status by checking output file's existence
-//    QString fileName = ui->toLineEdit->text();
+    mOutputString.append("Convert Surcessfully!!!\n");
+    ui->textBrowser->setText(mOutputString);
+    m_CurrentValue = 100;
+    ui->ConvertBar->setValue(m_CurrentValue);
 
-//    if (QFile::exists(fileName)) {
-//        ui->transcodingStatusLabel
-//                ->setText("Transcoding Status: Successful!");
-//        ui->playOutputButton->setEnabled(true);
-//    }
-//    else {
-//        ui->transcodingStatusLabel
-//                ->setText("Transcoding Status: Failed!");
-//    }
 }
 
 void MainWindow::on_fileopenButton_clicked()
 {
+    m_CurrentValue = 0;
+    ui->ConvertBar->setValue(m_CurrentValue);
     if(isfile)
     {
         QString fileName =
@@ -88,13 +95,16 @@ void MainWindow::on_fileopenButton_clicked()
                     tr("videoss (*.ts)"));
         if (!fileName.isEmpty()) {
             ui->fileEdit->setText(fileName);
-            ui->textBrowser->setText("Now you open file:" + fileName);
+            mOutputString.append("Now you open file:" + fileName + "\n");
+            ui->textBrowser->setText(mOutputString);
             hasfile = true;
         }
         else
         {
             hasfile = false;
-            ui->textBrowser->setText("There is not TS file, please input correct path!!!!");
+
+            mOutputString.append("There is not TS file, please input correct path!!!!");
+            ui->textBrowser->setText(mOutputString);
         }
 
     }
@@ -111,7 +121,8 @@ void MainWindow::on_fileopenButton_clicked()
         if (!dir.exists())
         {
             hasfile = false;
-            ui->textBrowser->setText("There is not TS file, please input correct path!!!!");
+            mOutputString.append("There is not TS file, please input correct path!!!!");
+            ui->textBrowser->setText(mOutputString);
             return;
         }
         QStringList filters;
@@ -125,13 +136,15 @@ void MainWindow::on_fileopenButton_clicked()
         if (file_count <= 0)
         {
             hasfile = false;
-            ui->textBrowser->setText("There is not TS file, please input correct path!!!!");
+            mOutputString.append("There is not TS file, please input correct path!!!!");
+            ui->textBrowser->setText(mOutputString);
             return;
         }
 
         hasfile = true;
         ui->fileEdit->setText(dirpath);
-        ui->textBrowser->setText("Now you open path:" + dirpath);
+        mOutputString.append("Now you open path:" + dirpath);
+        ui->textBrowser->setText(mOutputString);
 
 
     }
@@ -205,7 +218,10 @@ void MainWindow::on_ConvertButton_clicked()
 
         mTranscodingProcess->setProcessChannelMode(QProcess::MergedChannels);
 
-        QString program = "D:/ffmpeg/qtffmpeg/ffmpeghls/ffmpegtosegment/github/ffmpeg-segment/bin/ffmpeg";
+        QString program = QApplication::applicationDirPath() + "/ffmpeg/ffmpeg";
+        qDebug() <<program;
+
+        //QString program = "D:/ffmpeg/qtffmpeg/ffmpeghls/ffmpegtosegment/github/ffmpeg-segment/bin/ffmpeg";
         mTranscodingProcess->start(program, args);
 
     }
